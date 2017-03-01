@@ -164,4 +164,8 @@ TEST(Flags, flag_print) {
     std::stringstream s2;
     f1.print_flag_names(s2, 3, true);
     ASSERT_EQ(s2.str(), "+Flag1,+Flag2,-Flag3");
+
+    std::stringstream s3;
+    f1.print_flag_bits(s3, 3);
+    ASSERT_EQ(s3.str(), "011");
 }

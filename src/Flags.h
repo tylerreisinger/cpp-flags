@@ -53,6 +53,7 @@ public:
     constexpr StorageType get_value() const;
 
     void print_flag_names(std::ostream& stream, int max_bits=-1, bool verbose=false);
+    void print_flag_bits(std::ostream& stream, int max_bits=-1);
 
     static constexpr Flags<T> from_value(StorageType value);
     static constexpr Flags<T> empty();
@@ -214,6 +215,21 @@ inline void Flags<T>::print_flag_names(std::ostream& stream, int max_bits, bool 
             first = false;
         }
     } 
+}
+ 
+template<typename T>
+inline void Flags<T>::print_flag_bits(std::ostream& stream, int max_bits) {
+    if(max_bits == -1) {
+        max_bits = static_cast<int>(std::log(std::numeric_limits<StorageType>::max()));
+    }
+    for(int i = max_bits-1; i >= 0; --i) {
+        int mask = StorageType(1) << i;
+        if((mask & m_value) != 0) {
+            stream << "1";
+        } else {
+            stream << "0";
+        }
+    }
 }
  
 template<typename T>
