@@ -79,6 +79,27 @@ TEST(Flags, flag_modifiers) {
     ASSERT_EQ(f2, f1); 
     f2.set_flag(TestFlags::Flag2);
     ASSERT_EQ(f2, f1);
+
+    Flags<TestFlags> f3 = {TestFlags::Flag2};
+    Flags<TestFlags> f4 = {TestFlags::Flag1, TestFlags::Flag2, TestFlags::Flag3};
+    Flags<TestFlags> f5 = {TestFlags::Flag3, TestFlags::Flag1};
+    f3.set_flags(f5);
+    ASSERT_EQ(f3, f4);
+    f3.clear_flags({TestFlags::Flag3});
+    Flags<TestFlags> f6 = {TestFlags::Flag1, TestFlags::Flag2};
+    Flags<TestFlags> f7 = {TestFlags::Flag3, TestFlags::Flag2};
+    ASSERT_EQ(f3, f6);
+    f3.clear_flags(f4);
+    ASSERT_EQ(f3, Flags<TestFlags>::empty());
+    f3.set_flags(TestFlags::Flag1);
+    f3.clear_flags(TestFlags::Flag2);
+    f3.clear_flags(TestFlags::Flag3);
+    ASSERT_EQ(f3, TestFlags::Flag1);
+    f3.toggle_flags(f4);
+    ASSERT_EQ(f3, f7);
+    ASSERT_TRUE(f3.has_flags(f7));
+    f3.toggle_flags(f5);
+    ASSERT_TRUE(f3.has_flags({TestFlags::Flag1, TestFlags::Flag2}));
 }
 
 TEST(Flags, flag_test) {
@@ -86,5 +107,30 @@ TEST(Flags, flag_test) {
     ASSERT_TRUE(f1.has_flag(TestFlags::Flag2));
     ASSERT_FALSE(f1.has_flag(TestFlags::Flag1));
     ASSERT_FALSE(f1.has_flag(TestFlags::Flag3));
+    ASSERT_TRUE(f1.has_flags(f1));
 
+    Flags<TestFlags> f2 = {TestFlags::Flag1, TestFlags::Flag2};
+    ASSERT_TRUE(f2.has_flag(TestFlags::Flag1));
+    ASSERT_TRUE(f2.has_flag(TestFlags::Flag2));
+    ASSERT_FALSE(f2.has_flag(TestFlags::Flag3));
+    ASSERT_TRUE(f2.has_flags(f2));
+    ASSERT_TRUE(f2.has_flags(f1));
+    ASSERT_TRUE(f2.has_flags({}));
+    ASSERT_TRUE(f2.has_flags({TestFlags::Flag1, TestFlags::Flag2}));
+    ASSERT_TRUE(f2.has_flags({TestFlags::Flag2}));
+    ASSERT_FALSE(f2.has_flags({TestFlags::Flag3}));
+    ASSERT_FALSE(f2.has_flags({TestFlags::Flag1, TestFlags::Flag2, TestFlags::Flag3}));
+
+    Flags<TestFlags> f3;
+    ASSERT_TRUE(f3.has_flags(f3));
+    ASSERT_TRUE(f3.has_flags(Flags<TestFlags>::empty()));
+
+    Flags<TestFlags> f4 = {TestFlags::Flag1, TestFlags::Flag2, TestFlags::Flag3};
+    ASSERT_TRUE(f4.has_flags(f1));
+    ASSERT_TRUE(f4.has_flags(f2));
+    ASSERT_TRUE(f4.has_flags(f3));
+    ASSERT_TRUE(f4.has_flags(f4));
+    ASSERT_TRUE(f4.has_flags({}));
+    ASSERT_TRUE(f4.has_flags({TestFlags::Flag2}));
+    ASSERT_TRUE(f4.has_flags({TestFlags::Flag1, TestFlags::Flag2, TestFlags::Flag3}));
 }

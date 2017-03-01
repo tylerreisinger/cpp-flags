@@ -41,6 +41,11 @@ public:
     constexpr void clear_flag(T flag);
     constexpr void toggle_flag(T flag);
 
+    constexpr void set_flags(const Flags<T>& flags);
+    constexpr bool has_flags(const Flags<T>& flags) const;
+    constexpr void clear_flags(const Flags<T>& flags);
+    constexpr void toggle_flags(const Flags<T>& flags);
+
     constexpr StorageType get_value() const;
 
     static constexpr Flags<T> from_value(StorageType value);
@@ -151,6 +156,26 @@ inline constexpr Flags<T> Flags<T>::from_value(Flags::StorageType value) {
     auto val = Flags<T>();
     val.m_value = value;
     return val;
+}
+ 
+template<typename T>
+inline constexpr void Flags<T>::set_flags(const Flags<T>& flags) {
+    m_value |= flags.m_value; 
+}
+ 
+template<typename T>
+inline constexpr bool Flags<T>::has_flags(const Flags<T>& flags) const {
+    return (m_value & flags.m_value) == flags.m_value; 
+}
+ 
+template<typename T>
+inline constexpr void Flags<T>::clear_flags(const Flags<T>& flags) {
+    m_value &= ~flags.m_value; 
+}
+ 
+template<typename T>
+inline constexpr void Flags<T>::toggle_flags(const Flags<T>& flags) {
+    m_value ^= flags.m_value; 
 }
  
 template<typename T>
