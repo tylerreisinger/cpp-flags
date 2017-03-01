@@ -17,6 +17,8 @@ public:
     constexpr Flags(std::initializer_list<T> flags);
     ~Flags() = default;
 
+    constexpr Flags(const Flags& other) = default;
+    constexpr Flags(Flags&& other) noexcept = default;
     constexpr Flags& operator =(const Flags& other) = default;
     constexpr Flags& operator =(Flags&& other) noexcept = default;
 
@@ -40,13 +42,16 @@ public:
     constexpr void toggle_flag(T flag);
 
     constexpr StorageType get_value() const;
+
+    static constexpr Flags<T> from_value(StorageType value);
+    static constexpr Flags<T> empty();
 private:
     StorageType m_value = 0x0;    
 };
 
 template<typename T>
 inline constexpr Flags<T>::Flags(T flag):
-    m_value(flag)
+    m_value(static_cast<StorageType>(flag))
 {
 }
  
@@ -64,38 +69,38 @@ inline constexpr bool Flags<T>::operator==(const Flags<T>& flags) const {
  
 template<typename T>
 inline constexpr bool Flags<T>::operator!=(const Flags<T>& flags) const {
-    return !(m_value == flags); 
+    return !(*this == flags); 
 }
  
 template<typename T>
 inline constexpr bool Flags<T>::operator==(T flags) const {
-    return m_value == flags; 
+    return m_value == static_cast<StorageType>(flags); 
 }
  
 template<typename T>
 inline constexpr bool Flags<T>::operator!=(T flags) const {
-    return !(m_value == flags);
+    return !(*this == flags);
  
 }
  
 template<typename T>
 inline constexpr Flags<T> Flags<T>::operator|(const Flags<T>& rhs) const {
-    return Flags(m_value | rhs.m_value); 
+    return Flags::from_value(m_value | rhs.m_value); 
 }
  
 template<typename T>
 inline constexpr Flags<T> Flags<T>::operator&(const Flags<T>& rhs) const {
-    return Flags(m_value & rhs.m_value); 
+    return Flags::from_value(m_value & rhs.m_value); 
 }
 
 template<typename T>
 inline constexpr Flags<T> Flags<T>::operator^(const Flags<T>& rhs) const {
-    return Flags(m_value ^ rhs.m_value); 
+    return Flags::from_value(m_value ^ rhs.m_value); 
 }
  
 template<typename T>
 inline constexpr Flags<T> Flags<T>::operator~() const {
-    return Flags(~m_value); 
+    return Flags::from_value(~m_value); 
 }
  
 template<typename T>
@@ -139,6 +144,18 @@ inline constexpr void Flags<T>::toggle_flag(T flag) {
 template<typename T>
 inline constexpr typename Flags<T>::StorageType Flags<T>::get_value() const {
     return m_value;
+}
+ 
+template<typename T>
+inline constexpr Flags<T> Flags<T>::from_value(Flags::StorageType value) {
+    auto val = Flags<T>();
+    val.m_value = value;
+    return val;
+}
+ 
+template<typename T>
+inline constexpr Flags<T> Flags<T>::empty() {
+    return Flags<T>(); 
 }
  
 }
