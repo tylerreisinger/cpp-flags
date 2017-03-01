@@ -1,5 +1,8 @@
 #include "gtest/gtest.h"
 
+#include <iostream>
+#include <sstream>
+
 #include "Flags.h"
 
 using namespace flags;
@@ -9,6 +12,24 @@ enum class TestFlags {
     Flag2 = 0x2,
     Flag3 = 0x4
 };
+
+std::ostream& operator <<(std::ostream& stream, TestFlags flags) {
+    switch(flags) {
+        case TestFlags::Flag1:
+            stream << "Flag1";
+            break;
+        case TestFlags::Flag2:
+            stream << "Flag2";
+            break;
+        case TestFlags::Flag3:
+            stream << "Flag3";
+            break;
+        default:
+            stream << "<Unknown>";
+    }
+    return stream;
+}
+
 
 TEST(Flags, constructor) {
     Flags<TestFlags> f1;
@@ -133,4 +154,14 @@ TEST(Flags, flag_test) {
     ASSERT_TRUE(f4.has_flags({}));
     ASSERT_TRUE(f4.has_flags({TestFlags::Flag2}));
     ASSERT_TRUE(f4.has_flags({TestFlags::Flag1, TestFlags::Flag2, TestFlags::Flag3}));
+}
+
+TEST(Flags, flag_print) {
+    Flags<TestFlags> f1 = {TestFlags::Flag1, TestFlags::Flag2};
+    std::stringstream s1;
+    f1.print_flag_names(s1);
+    ASSERT_EQ(s1.str(), "Flag1,Flag2");
+    std::stringstream s2;
+    f1.print_flag_names(s2, 3, true);
+    ASSERT_EQ(s2.str(), "+Flag1,+Flag2,-Flag3");
 }

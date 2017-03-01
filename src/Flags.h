@@ -3,6 +3,10 @@
 
 #include <type_traits>
 #include <initializer_list>
+#include <ostream>
+#include <limits>
+#include <cmath>
+#include <cassert>
 
 namespace flags {
 
@@ -47,6 +51,8 @@ public:
     constexpr void toggle_flags(const Flags<T>& flags);
 
     constexpr StorageType get_value() const;
+
+    void print_flag_names(std::ostream& stream, int max_bits=-1, bool verbose=false);
 
     static constexpr Flags<T> from_value(StorageType value);
     static constexpr Flags<T> empty();
@@ -176,6 +182,38 @@ inline constexpr void Flags<T>::clear_flags(const Flags<T>& flags) {
 template<typename T>
 inline constexpr void Flags<T>::toggle_flags(const Flags<T>& flags) {
     m_value ^= flags.m_value; 
+}
+ 
+template<typename T>
+inline void Flags<T>::print_flag_names(std::ostream& stream, int max_bits, bool verbose) {
+    bool first = true;
+    if(max_bits == -1) {
+        max_bits = static_cast<int>(std::log(std::numeric_limits<StorageType>::max()));
+    }
+    assert(max_bits > 0);
+
+    for(int i = 0; i < max_bits; ++i) {
+        StorageType val = (StorageType(1) << i);
+        if(!verbose) {
+            if((m_value & val) != 0) {
+                if(!first) {
+                    stream << ",";
+                }
+                stream << static_cast<T>(val);
+                first = false;
+            }
+        } else {
+            if(!first) {
+                stream << ",";
+            }
+            if((m_value & val) != 0) {
+                stream << "+" << static_cast<T>(val);
+            } else {
+                stream << "-" << static_cast<T>(val);
+            }
+            first = false;
+        }
+    } 
 }
  
 template<typename T>
